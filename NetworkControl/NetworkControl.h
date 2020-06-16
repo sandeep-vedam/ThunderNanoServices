@@ -357,12 +357,22 @@ namespace Plugin {
 
             void GetIP(const Core::NodeId& preferred)
             {
+                Core::AdapterIterator adapter(_client.Interface());
 
-                auto offerIterator = _client.UnleasedOffers();
-                if (offerIterator.Next() == true) {
-                    Request(offerIterator.Current());
-                } else {
-                    Discover(preferred);
+                if (adapter.IsValid()) {
+                    // Some developer devices assign MAC via script after interface
+                    // was enabled. We need to make sure we are requesting IP for
+                    // the latest MAC, not the one assigned at interface startup.
+                    uint8_t mac[6];
+                    adapter.MACAddress(mac, sizeof(mac));
+                    _client.UpdateMAC(mac, sizeof(mac));
+
+                    auto offerIterator = _client.UnleasedOffers();
+                    if (offerIterator.Next() == true) {
+                        Request(offerIterator.Current());
+                    } else {
+                        Discover(preferred);
+                    }
                 }
             }
 

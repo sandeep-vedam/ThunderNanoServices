@@ -591,6 +591,11 @@ namespace Plugin {
         {
             return (_interfaceName);
         }
+        inline void UpdateMAC(uint8_t* buffer, uint8_t size) {
+            ASSERT(size == 6);
+
+            memcpy(_MAC, buffer, sizeof(_MAC));
+        }
         inline void Resend()
         {
 
